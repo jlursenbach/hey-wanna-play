@@ -96,6 +96,8 @@ button{font-family:'Courier New',monospace;cursor:pointer;border:none;
 .btn-back-link{background:none;border:none;color:#1a3a4a;font-family:'Courier New',monospace;
   font-size:.65rem;cursor:pointer;letter-spacing:.08em}
 .btn-back-link:hover{color:#4a7a8a}
+.catalog-btn{background:none;border:none;color:#1a3a4a;font-family:'Courier New',monospace;font-size:.6rem;cursor:pointer;letter-spacing:.08em}
+.catalog-btn:hover{color:#4a7a8a}
 </style>
 </head>
 <body>
@@ -139,6 +141,7 @@ button{font-family:'Courier New',monospace;cursor:pointer;border:none;
   <div class="btn-row">
     <button class="btn-sm" onclick="toggleSettings()">⚙ SETTINGS</button>
     <button class="btn-sm" id="reset-btn" onclick="resetScores()" style="display:none">↺ RESET SCORE</button>
+    <button class="btn-sm catalog-btn" onclick="navHome()">← CATALOG</button>
   </div>
 
   <div id="settings" class="surface hidden">
@@ -415,6 +418,11 @@ function guess(took){
 }
 
 updateScores();
+
+function navHome(){
+  if(window.parent!==window) window.parent.postMessage({type:'NAV_HOME'},'*');
+  else window.location.href='/';
+}
 </script>
 </body>
 </html>

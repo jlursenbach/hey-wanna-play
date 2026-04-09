@@ -115,6 +115,8 @@ button{font-family:'Courier New',monospace;cursor:pointer;transition:all .12s;bo
 .menubtn{background:none;border:none;color:#1a3a4a;font-size:.62rem;
   letter-spacing:.08em;cursor:pointer}
 .menubtn:hover{color:#4a7a8a}
+.catalog-btn{background:none;border:none;color:#1a3a4a;font-size:.58rem;letter-spacing:.1em;cursor:pointer;font-family:'Courier New',monospace}
+.catalog-btn:hover{color:#4a7a8a}
 </style>
 </head>
 <body>
@@ -158,6 +160,7 @@ button{font-family:'Courier New',monospace;cursor:pointer;transition:all .12s;bo
   <div style="font-size:.5rem;color:#1a3a4a;text-align:center">
     Win: +30 · Lose: −20 · Doubles reset each set · Score cumulative
   </div>
+  <button class="catalog-btn" onclick="navHome()">← catalog</button>
 </div>
 
 <!-- GAME -->
@@ -725,6 +728,11 @@ function buildSetup(){
 }
 
 buildSetup();
+
+function navHome(){
+  if(window.parent!==window) window.parent.postMessage({type:'NAV_HOME'},'*');
+  else window.location.href='/';
+}
 </script>
 </body>
 </html>

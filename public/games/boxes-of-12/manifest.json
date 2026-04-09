@@ -1,0 +1,13 @@
+{
+  "id": "boxes-of-12",
+  "name": "Boxes of 12",
+  "tagline": "A graph paper strategy game",
+  "description": "Place numbers on a grid. Connected groups that sum to 12 can be captured. Most squares wins.",
+  "pack": "free",
+  "players": "1-2",
+  "minAge": 8,
+  "estimatedMinutes": "10-20",
+  "icon": "assets/icon.png",
+  "preview": "assets/preview.png",
+  "version": "1.0.0"
+}

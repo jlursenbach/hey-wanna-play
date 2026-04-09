@@ -95,6 +95,8 @@ button{font-family:'Courier New',monospace;cursor:pointer;transition:all .12s}
 .osi{text-align:center}
 .osb{font-size:2.8rem;font-weight:bold}
 .osl{font-size:.66rem;color:#1a3a4a;letter-spacing:.08em}
+.cbtn{background:none;border:none;color:#0f2030;font-size:.58rem;letter-spacing:.1em;cursor:pointer;font-family:'Courier New',monospace;margin-top:10px}
+.cbtn:hover{color:#2a6a8a}
 </style>
 </head>
 <body>
@@ -137,6 +139,7 @@ button{font-family:'Courier New',monospace;cursor:pointer;transition:all .12s}
     Isolated regions too small for any piece become dead<br>
     Most colored squares when no moves remain wins
   </div>
+  <button class="cbtn" onclick="navHome()">← catalog</button>
 </div>
 
 <!-- GAME -->
@@ -567,6 +570,11 @@ document.getElementById('pasbtn').addEventListener('click', () => {
 
 // Init
 ss('setup');
+
+function navHome(){
+  if(window.parent!==window) window.parent.postMessage({type:'NAV_HOME'},'*');
+  else window.location.href='/';
+}
 </script>
 </body>
 </html>

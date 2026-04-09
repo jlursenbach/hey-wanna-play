@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Boxes of 12 — Hey Wanna Play?</title>
+  <link rel="stylesheet" href="src/styles.css"/>
+</head>
+<body>
+
+  <!-- ── SETUP SCREEN ── -->
+  <div id="screen-setup" class="screen">
+    <h1 class="game-title">BOXES OF 12</h1>
+    <p class="game-subtitle">A GRAPH PAPER STRATEGY GAME</p>
+
+    <div class="option-label">GRID SIZE</div>
+    <div class="option-group" id="grid-btns">
+      <button class="opt-btn" data-size="6">6×6</button>
+      <button class="opt-btn active" data-size="8">8×8</button>
+      <button class="opt-btn" data-size="10">10×10</button>
+      <button class="opt-btn" data-size="12">12×12</button>
+    </div>
+
+    <div class="option-label">NUMBER RULE</div>
+    <div id="rule-btns" style="width:100%;max-width:420px">
+      <button class="rule-btn active" data-rule="plusminus">+/−1 Loop  ★ recommended</button>
+      <button class="rule-btn" data-rule="free">Free choice (1–5)</button>
+      <button class="rule-btn" data-rule="cycle">Forced cycle 1→2→3→4→5→1</button>
+      <button class="rule-btn" data-rule="dice">Dice roll</button>
+    </div>
+
+    <div class="option-label p1-label">PLAYER 1 · X</div>
+    <div class="option-group" id="p0-btns" data-player="0"></div>
+
+    <div class="option-label p2-label">PLAYER 2 · O</div>
+    <div class="option-group" id="p1-btns" data-player="1"></div>
+
+    <button class="btn-primary" id="btn-start">▶ START GAME</button>
+
+    <div class="rules-hint">
+      Place numbers · connected groups summing to 12 can be captured<br>
+      Capture must include the cell just placed · most squares wins
+    </div>
+
+    <button class="btn-back" id="btn-back-home">← Hey Wanna Play?</button>
+  </div>
+
+  <!-- ── GAME SCREEN ── -->
+  <div id="screen-game" class="screen hidden">
+    <div class="game-header">
+      <div class="game-logo"><span id="indicator">■</span> BOXES OF 12</div>
+      <div class="scores">
+        <span class="score p1" id="score-p1">X 0</span>
+        <span class="score-div">|</span>
+        <span class="score p2" id="score-p2">O 0</span>
+      </div>
+    </div>
+
+    <div class="message-bar" id="message-bar">—</div>
+
+    <div id="num-picker"></div>
+
+    <div id="board-wrap"><div id="board"></div></div>
+
+    <div id="cap-panel" class="hidden">
+      <div id="cap-label">CAPTURE OPTIONS — hover to preview · click to select</div>
+      <div id="cap-options"></div>
+      <div id="cap-actions">
+        <button id="cap-confirm" disabled>CAPTURE</button>
+        <button id="cap-skip">skip</button>
+      </div>
+    </div>
+    <div id="ai-cap-msg" class="hidden">⟳ AI selecting capture…</div>
+
+    <button class="btn-menu" id="btn-menu">← menu</button>
+  </div>
+
+  <!-- ── GAME OVER SCREEN ── -->
+  <div id="screen-over" class="screen hidden">
+    <h2 class="over-title">GAME OVER</h2>
+    <p class="over-message" id="over-message"></p>
+
+    <div class="final-scores">
+      <div class="final-score p1">
+        <div class="final-score-value" id="final-p1">0</div>
+        <div class="final-score-label">X · P1</div>
+      </div>
+      <div class="final-score p2">
+        <div class="final-score-value" id="final-p2">0</div>
+        <div class="final-score-label">O · P2</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-play-again">▶ PLAY AGAIN</button>
+    <button class="btn-back" id="btn-back-setup">← setup</button>
+  </div>
+
+  <script src="src/game.js"></script>
+  <script src="src/ai.js"></script>
+  <script src="src/ui.js"></script>
+</body>
+</html>
