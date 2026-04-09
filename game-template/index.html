@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Game Name — Hey Wanna Play?</title>
+  <link rel="stylesheet" href="src/styles.css"/>
+</head>
+<body>
+
+  <!-- ── SETUP SCREEN ── -->
+  <div id="screen-setup" class="screen">
+    <h1 class="game-title">GAME NAME</h1>
+    <p class="game-subtitle">tagline here</p>
+
+    <!-- Player config, rule options, etc go here -->
+
+    <button class="btn-primary" id="btn-start">▶ START GAME</button>
+
+    <div class="rules-hint">
+      <!-- One or two line rule summary -->
+    </div>
+
+    <button class="btn-back" id="btn-back-home">← Hey Wanna Play?</button>
+  </div>
+
+  <!-- ── GAME SCREEN ── -->
+  <div id="screen-game" class="screen hidden">
+    <div class="game-header">
+      <div class="game-logo">GAME NAME</div>
+      <div class="scores" id="scores">
+        <span class="score p1">P1: 0</span>
+        <span class="score-div">|</span>
+        <span class="score p2">P2: 0</span>
+      </div>
+    </div>
+
+    <div class="message-bar" id="message-bar">—</div>
+
+    <!-- Game-specific UI goes here -->
+    <div id="game-content"></div>
+
+    <button class="btn-menu" id="btn-menu">← menu</button>
+  </div>
+
+  <!-- ── GAME OVER SCREEN ── -->
+  <div id="screen-over" class="screen hidden">
+    <h2 class="over-title">GAME OVER</h2>
+    <p class="over-message" id="over-message"></p>
+
+    <div class="final-scores" id="final-scores">
+      <div class="final-score p1">
+        <div class="final-score-value" id="final-p1">0</div>
+        <div class="final-score-label">P1</div>
+      </div>
+      <div class="final-score p2">
+        <div class="final-score-value" id="final-p2">0</div>
+        <div class="final-score-label">P2</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-play-again">▶ PLAY AGAIN</button>
+    <button class="btn-back" id="btn-back-setup">← setup</button>
+  </div>
+
+  <script src="src/game.js"></script>
+  <script src="src/ai.js"></script>
+  <script src="src/ui.js"></script>
+</body>
+</html>

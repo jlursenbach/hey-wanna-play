@@ -1,0 +1,14 @@
+{
+  "name": "game-id",
+  "version": "1.0.0",
+  "description": "Game Name — Hey Wanna Play?",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "lint": "npx eslint src/"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "serve": "^14.0.0"
+  }
+}

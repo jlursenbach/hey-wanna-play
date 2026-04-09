@@ -1,0 +1,205 @@
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ── */
+:root {
+  --bg:         #060d06;
+  --surface:    #080f08;
+  --border:     #0f1e0f;
+  --text:       #4a7a4a;
+  --text-dim:   #1a3a1a;
+  --text-faint: #0f250f;
+
+  --p1:         #F59E0B;   /* amber  — Player 1 */
+  --p2:         #22D3EE;   /* cyan   — Player 2 */
+  --p1-bg:      rgba(120, 60,  0,   0.5);
+  --p2-bg:      rgba(0,   80,  100, 0.5);
+
+  --accent:     #3a7a3a;
+  --font:       'Courier New', monospace;
+  --radius:     3px;
+}
+
+/* ── Base ── */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  gap: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Screens ── */
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+.hidden { display: none !important; }
+
+/* ── Typography ── */
+.game-title {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  text-shadow: 0 0 30px rgba(58, 122, 58, 0.3);
+  text-align: center;
+}
+.game-subtitle {
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  text-align: center;
+}
+.over-title {
+  font-size: 1.6rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-top: 30px;
+}
+.over-message {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+/* ── Game header ── */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 520px;
+}
+.game-logo {
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  font-weight: bold;
+}
+.scores {
+  display: flex;
+  gap: 14px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+.score.p1 { color: var(--p1); }
+.score.p2 { color: var(--p2); }
+.score-div { color: var(--text-faint); }
+
+/* ── Message bar ── */
+.message-bar {
+  width: 100%;
+  max-width: 520px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.76rem;
+  min-height: 33px;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+/* ── Buttons ── */
+button { font-family: var(--font); cursor: pointer; transition: all 0.12s; }
+
+.btn-primary {
+  padding: 10px 32px;
+  background: #122a12;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: #7ab07a;
+  font-weight: bold;
+  font-size: 0.88rem;
+  letter-spacing: 0.12em;
+  box-shadow: 0 0 20px rgba(58, 122, 58, 0.15);
+}
+.btn-primary:hover { background: #1a3a1a; }
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.7rem;
+}
+.btn-back:hover { color: var(--text-dim); }
+
+.btn-menu {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  margin-top: 4px;
+}
+.btn-menu:hover { color: var(--text-dim); }
+
+/* ── Final scores ── */
+.final-scores {
+  display: flex;
+  gap: 40px;
+  margin: 10px 0;
+}
+.final-score { text-align: center; }
+.final-score-value {
+  font-size: 3rem;
+  font-weight: bold;
+}
+.final-score.p1 .final-score-value { color: var(--p1); }
+.final-score.p2 .final-score-value { color: var(--p2); }
+.final-score-label {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+}
+
+/* ── Setup options (reusable) ── */
+.option-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  width: 100%;
+  max-width: 420px;
+  margin-top: 14px;
+  margin-bottom: 5px;
+}
+.option-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 420px;
+}
+.opt-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.74rem;
+}
+.opt-btn.active {
+  background: #152a15;
+  border-color: var(--accent);
+  color: #7ab07a;
+}
+.opt-btn.active-p1 { border-color: var(--p1); color: var(--p1); background: var(--p1-bg); }
+.opt-btn.active-p2 { border-color: var(--p2); color: var(--p2); background: var(--p2-bg); }
+
+/* ── Rules hint ── */
+.rules-hint {
+  color: var(--text-faint);
+  font-size: 0.6rem;
+  margin-top: 8px;
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.9;
+}

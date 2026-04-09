@@ -1,0 +1,13 @@
+{
+  "id": "game-id",
+  "name": "Game Name",
+  "tagline": "One line description of the game",
+  "description": "A longer description shown on the preview screen. What makes this game interesting? What do players do?",
+  "pack": "free",
+  "players": "2",
+  "minAge": 8,
+  "estimatedMinutes": "10-20",
+  "icon": "assets/icon.png",
+  "preview": "assets/preview.png",
+  "version": "1.0.0"
+}
