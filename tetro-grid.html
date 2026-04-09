@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tetro-Grid</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07090d;color:#4a6a7a;font-family:'Courier New',monospace;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:10px 8px;gap:8px}
+button{font-family:'Courier New',monospace;cursor:pointer;transition:all .12s}
+.screen{display:flex;flex-direction:column;align-items:center;width:100%}
+.hidden{display:none!important}
+
+/* ── Setup ── */
+.logo{font-size:1.9rem;font-weight:bold;letter-spacing:.22em;color:#2a6a8a;
+  text-shadow:0 0 40px #1a4a6a66;text-align:center;margin-bottom:4px}
+.sub{font-size:.62rem;letter-spacing:.16em;color:#1a3a4a;text-align:center;margin-bottom:22px}
+.rl{font-size:.58rem;letter-spacing:.14em;margin-bottom:5px;margin-top:14px;
+  width:100%;max-width:420px}
+.bg{display:flex;gap:5px;flex-wrap:wrap;width:100%;max-width:420px}
+.ob{padding:5px 10px;border:1px solid #0f1f2f;border-radius:3px;
+  background:transparent;color:#1a3a4a;font-size:.72rem}
+.ob.active{background:#0a1f2f;border-color:#2a6a8a;color:#4a9aba}
+.ob.ra{border-color:#EF4444;color:#EF4444;background:rgba(80,10,10,.5)}
+.ob.ba{border-color:#22D3EE;color:#22D3EE;background:rgba(0,50,70,.5)}
+.alt-row{display:flex;align-items:center;gap:8px;margin-top:14px;
+  font-size:.7rem;color:#1a3a4a;cursor:pointer}
+.alt-row input{accent-color:#2a6a8a}
+.sbtn{margin-top:18px;padding:10px 34px;background:#071522;border:1px solid #2a6a8a;
+  border-radius:3px;color:#4a9aba;font-weight:bold;font-size:.88rem;letter-spacing:.12em;
+  box-shadow:0 0 24px #1a4a6a33}
+.sbtn:hover{background:#0a1f30}
+.hint{color:#0f2030;font-size:.58rem;margin-top:16px;text-align:center;
+  max-width:360px;line-height:2}
+
+/* ── Game header ── */
+#hdr{display:flex;justify-content:space-between;align-items:center;
+  width:100%;max-width:560px;margin-bottom:2px}
+.hl{font-size:.85rem;letter-spacing:.12em;color:#1a4a5a;font-weight:bold}
+#sc{display:flex;gap:14px;font-weight:bold;font-size:.88rem}
+#s0{color:#EF4444}#s1{color:#22D3EE}#sdiv{color:#1a2a3a}
+#msg{width:100%;max-width:560px;padding:6px 12px;border:1px solid #0f1f2f;
+  border-radius:3px;font-size:.72rem;min-height:30px;display:flex;align-items:center;
+  transition:border-color .25s,color .25s}
+
+/* ── Piece area ── */
+#pa{width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;gap:6px}
+#pb{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.pbt{padding:5px 6px;border:1px solid #0f1f2f;border-radius:3px;background:transparent;
+  display:flex;flex-direction:column;align-items:center;gap:2px;min-width:36px}
+.pbt:hover{border-color:#1a3a4a}
+.pbt.sr{border-color:#EF4444;background:rgba(80,10,10,.35);
+  box-shadow:0 0 8px rgba(239,68,68,.2)}
+.pbt.sb{border-color:#22D3EE;background:rgba(0,50,70,.35);
+  box-shadow:0 0 8px rgba(34,211,238,.2)}
+.pn{font-size:.5rem;color:#1a3a4a;letter-spacing:.06em}
+.mg{display:grid;gap:1px}
+.mc{width:7px;height:7px;border-radius:1px}
+.mc.fr{background:#EF4444}.mc.fb{background:#22D3EE}.mc.fe{background:transparent}
+
+#pc{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center}
+#rbtn{padding:5px 13px;border:1px solid #1a3a4a;border-radius:3px;
+  background:transparent;color:#2a5a6a;font-size:.76rem}
+#rbtn:hover{border-color:#2a6a8a;color:#4a9aba}
+#plbtn{padding:5px 15px;border:none;border-radius:3px;
+  font-weight:bold;font-size:.76rem;background:#071020;color:#1a3a4a}
+#plbtn.rr{background:#EF4444;color:#000;box-shadow:0 0 12px rgba(239,68,68,.35)}
+#plbtn.rb{background:#22D3EE;color:#000;box-shadow:0 0 12px rgba(34,211,238,.35)}
+#pasbtn{padding:5px 11px;border:1px solid #1a2a3a;border-radius:3px;
+  background:transparent;color:#1a3a4a;font-size:.7rem;display:none}
+
+/* ── Board ── */
+#bw{overflow:auto;max-width:100vw}
+#bd{display:grid;gap:2px;background:#050810;border:1px solid #0f1820;
+  border-radius:4px;padding:3px}
+.cl{display:flex;align-items:center;justify-content:center;
+  border:1px solid #0a1520;background:#06090e;
+  font-size:.7rem;font-weight:bold;user-select:none;cursor:pointer;
+  transition:background .07s,border-color .07s}
+.cl.c0{background:rgba(90,10,10,.65);border-color:#EF4444;color:#EF4444}
+.cl.c1{background:rgba(0,55,75,.65);border-color:#22D3EE;color:#22D3EE}
+.cl.cd{background:#0d0d0d;border-color:#141414;cursor:default}
+.cl.pr{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.5)}
+.cl.pb2{background:rgba(34,211,238,.2);border-color:rgba(34,211,238,.5)}
+.cl.px{background:rgba(200,50,50,.1);border-color:rgba(200,80,80,.35)}
+#ml{background:none;border:none;color:#0f2030;font-size:.67rem;margin-top:2px}
+#ml:hover{color:#1a4a5a}
+
+/* ── Over ── */
+#ot{font-size:1.5rem;letter-spacing:.2em;color:#2a6a8a;margin-bottom:8px;margin-top:30px}
+#om{color:#1a5a6a;font-size:.78rem;margin-bottom:18px;text-align:center}
+#osc{display:flex;gap:40px;margin-bottom:22px}
+.osi{text-align:center}
+.osb{font-size:2.8rem;font-weight:bold}
+.osl{font-size:.66rem;color:#1a3a4a;letter-spacing:.08em}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup" class="screen">
+  <div class="logo">TETRO-GRID</div>
+  <div class="sub">A GRAPH PAPER TERRITORY GAME</div>
+
+  <div class="rl">GRID SIZE</div>
+  <div class="bg" id="gbtn">
+    <button class="ob" data-s="7">7×7</button>
+    <button class="ob active" data-s="9">9×9</button>
+    <button class="ob" data-s="11">11×11</button>
+    <button class="ob" data-s="13">13×13</button>
+  </div>
+
+  <div class="rl" style="color:#EF4444">PLAYER 1 · X (RED)</div>
+  <div class="bg" id="p0btn">
+    <button class="ob ra" data-pid="human">Human</button>
+    <button class="ob" data-pid="heuristic">Heuristic Bot</button>
+  </div>
+
+  <div class="rl" style="color:#22D3EE">PLAYER 2 · O (BLUE)</div>
+  <div class="bg" id="p1btn">
+    <button class="ob ba" data-pid="human">Human</button>
+    <button class="ob" data-pid="heuristic">Heuristic Bot</button>
+  </div>
+
+  <label class="alt-row">
+    <input type="checkbox" id="altcb"/>
+    Alternate rules: color conflicts become dead cells
+  </label>
+
+  <button class="sbtn" id="stbtn">▶ START GAME</button>
+  <div class="hint">
+    Place tetrominoes anywhere on the grid<br>
+    Complete a row or column to claim it in your color<br>
+    Opponent's cells on your line switch to your color<br>
+    Isolated regions too small for any piece become dead<br>
+    Most colored squares when no moves remain wins
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen hidden">
+  <div id="hdr">
+    <div class="hl"><span id="ind">■</span> TETRO-GRID</div>
+    <div id="sc"><span id="s0">X 0</span><span id="sdiv">|</span><span id="s1">O 0</span></div>
+  </div>
+  <div id="msg">—</div>
+  <div id="pa">
+    <div id="pb"></div>
+    <div id="pc">
+      <button id="rbtn">↻ Rotate</button>
+      <button id="plbtn" disabled>Place</button>
+      <button id="pasbtn">Pass turn</button>
+    </div>
+  </div>
+  <div id="bw"><div id="bd"></div></div>
+  <button id="ml">← menu</button>
+</div>
+
+<!-- OVER -->
+<div id="over" class="screen hidden">
+  <div id="ot">GAME OVER</div>
+  <div id="om"></div>
+  <div id="osc">
+    <div class="osi">
+      <div class="osb" id="os0" style="color:#EF4444">0</div>
+      <div class="osl">X · P1</div>
+    </div>
+    <div class="osi">
+      <div class="osb" id="os1" style="color:#22D3EE">0</div>
+      <div class="osl">O · P2</div>
+    </div>
+  </div>
+  <button class="sbtn" id="omenu">← MENU</button>
+</div>
+
+<script>
+// ── Piece definitions (all standard tetrominoes, all rotations) ───────────
+const PDEFS = {
+  I:[[[1,1,1,1]],[[1],[1],[1],[1]]],
+  O:[[[1,1],[1,1]]],
+  T:[[[0,1,0],[1,1,1]],[[1,0],[1,1],[1,0]],[[1,1,1],[0,1,0]],[[0,1],[1,1],[0,1]]],
+  S:[[[0,1,1],[1,1,0]],[[1,0],[1,1],[0,1]]],
+  Z:[[[1,1,0],[0,1,1]],[[0,1],[1,1],[1,0]]],
+  J:[[[1,0,0],[1,1,1]],[[1,1],[1,0],[1,0]],[[1,1,1],[0,0,1]],[[0,1],[0,1],[1,1]]],
+  L:[[[0,0,1],[1,1,1]],[[1,0],[1,0],[1,1]],[[1,1,1],[1,0,0]],[[1,1],[0,1],[0,1]]]
+};
+const PN = Object.keys(PDEFS);
+const CLR = ['#EF4444','#22D3EE'];
+
+// ── State ────────────────────────────────────────────────────────────────
+let cfg = {R:9,C:9,p:['human','human'],alt:false};
+let board, turn, selP, selR, prevPos, aiRunning, cpass;
+
+// ── Pure logic ────────────────────────────────────────────────────────────
+const clone = b => b.map(r => [...r]);
+const mkBoard = (R,C) => Array(R).fill(null).map(() => Array(C).fill(null));
+
+function getCells(rot) {
+  const c = [];
+  for (let r = 0; r < rot.length; r++)
+    for (let cc = 0; cc < rot[0].length; cc++)
+      if (rot[r][cc]) c.push([r,cc]);
+  return c;
+}
+
+function canPl(b, rot, tr, tc) {
+  const R=b.length, C=b[0].length;
+  return getCells(rot).every(([r,c]) => {
+    const nr=tr+r, nc=tc+c;
+    return nr>=0 && nr<R && nc>=0 && nc<C && b[nr][nc]===null;
+  });
+}
+
+function doPl(b, rot, tr, tc, pl) {
+  const rows=new Set(), cols=new Set();
+  getCells(rot).forEach(([r,c]) => {
+    b[tr+r][tc+c]=pl; rows.add(tr+r); cols.add(tc+c);
+  });
+  return {rows:[...rows], cols:[...cols]};
+}
+
+function chkLines(b, rows, cols, pl, alt) {
+  const R=b.length, C=b[0].length;
+
+  const applyRow = r => {
+    if (!b[r].every(v => v !== null)) return;
+    for (let c = 0; c < C; c++) {
+      if (b[r][c]==='dead') continue;
+      b[r][c] = (alt && b[r][c]!==null && b[r][c]!==pl) ? 'dead' : pl;
+    }
+  };
+  const applyCol = c => {
+    if (!b.every(row => row[c] !== null)) return;
+    for (let r = 0; r < R; r++) {
+      if (b[r][c]==='dead') continue;
+      b[r][c] = (alt && b[r][c]!==null && b[r][c]!==pl) ? 'dead' : pl;
+    }
+  };
+
+  rows.forEach(applyRow);
+  cols.forEach(applyCol);
+}
+
+function countLines(b, rows, cols) {
+  let n = 0;
+  rows.forEach(r => { if (b[r].every(v => v!==null)) n++; });
+  cols.forEach(c => { if (b.every(row => row[c]!==null)) n++; });
+  return n;
+}
+
+function fitInReg(rset, R, C) {
+  for (const nm of PN) {
+    for (const rot of PDEFS[nm]) {
+      const ph=rot.length, pw=rot[0].length;
+      const cells=getCells(rot);
+      for (let tr=0; tr<=R-ph; tr++)
+        for (let tc=0; tc<=C-pw; tc++)
+          if (cells.every(([r,c]) => rset.has(`${tr+r},${tc+c}`))) return true;
+    }
+  }
+  return false;
+}
+
+function detectDead(b) {
+  const R=b.length, C=b[0].length;
+  let changed = true;
+  while (changed) {
+    changed = false;
+    const vis = new Set();
+    for (let r=0; r<R; r++) {
+      for (let c=0; c<C; c++) {
+        if (b[r][c]!==null || vis.has(`${r},${c}`)) continue;
+        const reg=[], rset=new Set(), q=[[r,c]];
+        while (q.length) {
+          const [cr,cc]=q.shift(), k=`${cr},${cc}`;
+          if (vis.has(k) || b[cr][cc]!==null) continue;
+          vis.add(k); rset.add(k); reg.push([cr,cc]);
+          [[cr-1,cc],[cr+1,cc],[cr,cc-1],[cr,cc+1]]
+            .filter(([nr,nc])=>nr>=0&&nr<R&&nc>=0&&nc<C)
+            .forEach(p=>q.push(p));
+        }
+        if (!fitInReg(rset,R,C)) {
+          reg.forEach(([rr,cc]) => { b[rr][cc]='dead'; changed=true; });
+        }
+      }
+    }
+  }
+}
+
+function hasPl(b) {
+  const R=b.length, C=b[0].length;
+  for (const nm of PN)
+    for (const rot of PDEFS[nm]) {
+      const ph=rot.length, pw=rot[0].length;
+      for (let r=0; r<=R-ph; r++)
+        for (let c=0; c<=C-pw; c++)
+          if (canPl(b,rot,r,c)) return true;
+    }
+  return false;
+}
+
+function calcSc(b) {
+  const s=[0,0];
+  b.forEach(row => row.forEach(v => { if(v===0)s[0]++; else if(v===1)s[1]++; }));
+  return s;
+}
+
+// ── Heuristic AI ──────────────────────────────────────────────────────────
+function heuristic(b, pl, alt) {
+  const R=b.length, C=b[0].length;
+  let best=null, bs=-Infinity;
+
+  for (const nm of PN) {
+    for (let ri=0; ri<PDEFS[nm].length; ri++) {
+      const rot=PDEFS[nm][ri], ph=rot.length, pw=rot[0].length;
+      for (let tr=0; tr<=R-ph; tr++) {
+        for (let tc=0; tc<=C-pw; tc++) {
+          if (!canPl(b,rot,tr,tc)) continue;
+          const nb=clone(b);
+          const {rows,cols}=doPl(nb,rot,tr,tc,pl);
+          const lines=countLines(nb,rows,cols);
+          chkLines(nb,rows,cols,pl,alt);
+          const s=calcSc(nb);
+          let score = s[pl]-s[1-pl] + lines*10;
+          // Slight center preference
+          score += 0.3*(1 - Math.abs(tr+ph/2-R/2)/(R/2+1) - Math.abs(tc+pw/2-C/2)/(C/2+1));
+          if (score>bs) { bs=score; best={nm,ri,tr,tc}; }
+        }
+      }
+    }
+  }
+  return best;
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────
+function ss(id) {
+  ['setup','game','over'].forEach(s =>
+    document.getElementById(s).classList.toggle('hidden', s!==id));
+}
+
+function setMsg(t, p) {
+  const el=document.getElementById('msg');
+  el.textContent=t;
+  const c=CLR[p??turn];
+  el.style.borderColor=c; el.style.color=c;
+  document.getElementById('ind').style.color=c;
+}
+
+function updSc() {
+  const s=calcSc(board);
+  document.getElementById('s0').textContent=`X ${s[0]}`;
+  document.getElementById('s1').textContent=`O ${s[1]}`;
+}
+
+function renderPieces() {
+  const el=document.getElementById('pb');
+  el.innerHTML='';
+  PN.forEach(nm => {
+    const isSelected=selP===nm;
+    const rot=PDEFS[nm][isSelected?selR:0];
+    const ph=rot.length, pw=rot[0].length;
+
+    const btn=document.createElement('button');
+    btn.className='pbt'+(isSelected?(turn===0?' sr':' sb'):'');
+
+    const mg=document.createElement('div');
+    mg.className='mg';
+    mg.style.gridTemplateColumns=`repeat(${pw},7px)`;
+    mg.style.gridTemplateRows=`repeat(${ph},7px)`;
+
+    for (let r=0; r<ph; r++) for (let c=0; c<pw; c++) {
+      const mc=document.createElement('div');
+      mc.className='mc'+(rot[r][c] ? (turn===0?' fr':' fb') : ' fe');
+      mg.appendChild(mc);
+    }
+
+    const pn=document.createElement('div');
+    pn.className='pn'; pn.textContent=nm;
+
+    btn.appendChild(mg); btn.appendChild(pn);
+    btn.onclick=()=>{
+      const was=selP===nm;
+      selP=nm;
+      if (!was) selR=0;
+      prevPos=null;
+      render();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderBoard() {
+  const el=document.getElementById('bd');
+  const csz=Math.max(22,Math.min(44,Math.floor(340/Math.max(cfg.R,cfg.C))));
+  el.style.gridTemplateColumns=`repeat(${cfg.C},${csz}px)`;
+  el.innerHTML='';
+
+  // Build preview map
+  const pv=new Map();
+  if (selP && prevPos) {
+    const rot=PDEFS[selP][selR];
+    const ok=canPl(board,rot,prevPos.r,prevPos.c);
+    getCells(rot).forEach(([r,c]) => {
+      const nr=prevPos.r+r, nc=prevPos.c+c;
+      if (nr>=0&&nr<cfg.R&&nc>=0&&nc<cfg.C)
+        pv.set(`${nr},${nc}`, ok?'ok':'bad');
+    });
+  }
+
+  for (let r=0; r<cfg.R; r++) {
+    for (let c=0; c<cfg.C; c++) {
+      const div=document.createElement('div');
+      div.className='cl';
+      div.style.width=div.style.height=csz+'px';
+      div.dataset.r=r; div.dataset.c=c;
+
+      const v=board[r][c];
+      const p=pv.get(`${r},${c}`);
+
+      if      (p==='ok')    div.classList.add(turn===0?'pr':'pb2');
+      else if (p==='bad')   div.classList.add('px');
+      else if (v===0)      { div.classList.add('c0'); div.textContent='X'; }
+      else if (v===1)      { div.classList.add('c1'); div.textContent='O'; }
+      else if (v==='dead') div.classList.add('cd');
+
+      div.onclick=()=>onCC(r,c);
+      el.appendChild(div);
+    }
+  }
+}
+
+function render() {
+  renderPieces();
+  renderBoard();
+  updSc();
+
+  const isH=cfg.p[turn]==='human';
+  const rot=selP?PDEFS[selP][selR]:null;
+  const canP=isH&&rot&&prevPos&&canPl(board,rot,prevPos.r,prevPos.c);
+
+  const pb=document.getElementById('plbtn');
+  pb.disabled=!canP;
+  pb.className='plbtn'+(canP?(turn===0?' rr':' rb'):'');
+
+  const noPl=isH&&!hasPl(board)&&!aiRunning;
+  document.getElementById('pasbtn').style.display=noPl?'block':'none';
+}
+
+// ── Game flow ─────────────────────────────────────────────────────────────
+function execPl(nm, ri, tr, tc) {
+  const rot=PDEFS[nm][ri];
+  const nb=clone(board);
+  const {rows,cols}=doPl(nb,rot,tr,tc,turn);
+  chkLines(nb,rows,cols,turn,cfg.alt);
+  detectDead(nb);
+  board=nb;
+  cpass=0; selP=null; selR=0; prevPos=null;
+  nextTurn();
+}
+
+function nextTurn() {
+  updSc();
+  if (!hasPl(board)) { endGame(); return; }
+  turn=1-turn; selP=null; selR=0; prevPos=null;
+  const isAI=cfg.p[turn]!=='human';
+  setMsg(isAI
+    ? `⟳ Player ${turn+1} (${['X','O'][turn]}) — AI thinking…`
+    : `Player ${turn+1} (${['X','O'][turn]})'s turn`);
+  render();
+  if (isAI) setTimeout(runAI, 700);
+}
+
+function endGame() {
+  const [s0,s1]=calcSc(board);
+  document.getElementById('os0').textContent=s0;
+  document.getElementById('os1').textContent=s1;
+  document.getElementById('os0').style.textShadow=s0>s1?`0 0 24px ${CLR[0]}`:'none';
+  document.getElementById('os1').style.textShadow=s1>s0?`0 0 24px ${CLR[1]}`:'none';
+  const w=s0>s1?`X wins! ${s0} vs ${s1}`:s1>s0?`O wins! ${s1} vs ${s0}`:`Tie — ${s0} each`;
+  document.getElementById('om').textContent=w;
+  ss('over');
+}
+
+function runAI() {
+  if (aiRunning) return;
+  aiRunning=true;
+  const mv=heuristic(board,turn,cfg.alt);
+  aiRunning=false;
+  if (!mv) { cpass++; if(cpass>=2){endGame();return;} nextTurn(); return; }
+  execPl(mv.nm, mv.ri, mv.tr, mv.tc);
+}
+
+function onCC(r,c) {
+  if (cfg.p[turn]!=='human'||aiRunning) return;
+  if (!selP) { setMsg('Select a piece type above →',turn); return; }
+  const rot=PDEFS[selP][selR];
+  // Second tap on same valid cell → place
+  if (prevPos&&prevPos.r===r&&prevPos.c===c&&canPl(board,rot,r,c)) {
+    execPl(selP,selR,r,c);
+  } else {
+    prevPos={r,c};
+    render();
+  }
+}
+
+// Mousemove for desktop smooth preview
+document.getElementById('bw').addEventListener('mousemove', e => {
+  if (cfg.p[turn]!=='human'||aiRunning||!selP) return;
+  const cell=e.target.closest('[data-r]');
+  if (!cell) return;
+  const r=+cell.dataset.r, c=+cell.dataset.c;
+  if (!prevPos||prevPos.r!==r||prevPos.c!==c) { prevPos={r,c}; renderBoard(); }
+});
+
+// ── Setup wiring ──────────────────────────────────────────────────────────
+document.getElementById('gbtn').addEventListener('click', e => {
+  const s=e.target.dataset.s; if(!s)return;
+  cfg.R=cfg.C=+s;
+  document.querySelectorAll('#gbtn .ob').forEach(b =>
+    b.classList.toggle('active', b.dataset.s===s));
+});
+
+['p0btn','p1btn'].forEach((id,pi) => {
+  document.getElementById(id).addEventListener('click', e => {
+    const pid=e.target.dataset.pid; if(!pid)return;
+    cfg.p[pi]=pid;
+    const ac=pi===0?'ra':'ba';
+    document.querySelectorAll(`#${id} .ob`).forEach(b => {
+      b.className='ob'+(b.dataset.pid===pid?` ${ac}`:'');
+    });
+  });
+});
+
+document.getElementById('altcb').addEventListener('change', e => cfg.alt=e.target.checked);
+
+document.getElementById('stbtn').addEventListener('click', () => {
+  board=mkBoard(cfg.R,cfg.C);
+  turn=0; selP=null; selR=0; prevPos=null; aiRunning=false; cpass=0;
+  ss('game');
+  setMsg('Player 1 (X) goes first!', 0);
+  render();
+  if (cfg.p[0]!=='human') setTimeout(runAI,700);
+});
+
+document.getElementById('ml').addEventListener('click', ()=>ss('setup'));
+document.getElementById('omenu').addEventListener('click', ()=>ss('setup'));
+
+document.getElementById('rbtn').addEventListener('click', () => {
+  if (!selP) return;
+  selR=(selR+1)%PDEFS[selP].length;
+  prevPos=null; render();
+});
+
+document.getElementById('plbtn').addEventListener('click', () => {
+  if (!selP||!prevPos) return;
+  if (canPl(board,PDEFS[selP][selR],prevPos.r,prevPos.c))
+    execPl(selP,selR,prevPos.r,prevPos.c);
+});
+
+document.getElementById('pasbtn').addEventListener('click', () => {
+  cpass++;
+  if (cpass>=2) { endGame(); return; }
+  nextTurn();
+});
+
+// Init
+ss('setup');
+</script>
+</body>
+</html>

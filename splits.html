@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Splits</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07090d;min-height:100vh;font-family:'Courier New',monospace;
+  color:#7ab8cc;display:flex;flex-direction:column;align-items:center;padding:14px 12px;gap:12px}
+.screen{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.hidden{display:none!important}
+button{font-family:'Courier New',monospace;cursor:pointer;transition:all .12s;border-radius:3px}
+
+/* typography */
+.title{font-size:1.9rem;font-weight:bold;letter-spacing:.2em;color:#a0d8ef;text-align:center}
+.sub{font-size:.58rem;letter-spacing:.14em;color:#4a7a8a;text-align:center}
+.lbl{font-size:.58rem;letter-spacing:.14em;color:#4a7a8a}
+.big{font-size:1rem;font-weight:bold;color:#a0d8ef;letter-spacing:.08em;text-align:center}
+
+/* surfaces */
+.surface{background:#0d1117;border:1px solid #1a2a3a;border-radius:4px;padding:12px 14px;width:100%}
+
+/* setup */
+.setup-label{font-size:.58rem;letter-spacing:.14em;margin-bottom:6px;margin-top:12px;width:100%}
+.type-group{display:flex;gap:5px;flex-wrap:wrap;width:100%}
+.type-btn{padding:5px 8px;border:1px solid #1a2a3a;background:transparent;color:#4a7a8a;font-size:.62rem}
+.type-btn.a0{border-color:#F59E0B;color:#F59E0B;background:rgba(120,60,0,.35)}
+.type-btn.a1{border-color:#22D3EE;color:#22D3EE;background:rgba(0,50,70,.35)}
+
+/* score bar */
+.sbar{display:flex;justify-content:space-between;align-items:center;width:100%;
+  padding:8px 14px;background:#0d1117;border:1px solid #1a2a3a;border-radius:4px}
+.sval{font-size:1.5rem;font-weight:bold;text-align:center}
+.sval.p1{color:#F59E0B}.sval.p2{color:#22D3EE}
+.sval.warn{color:#f87171}
+.slbl{font-size:.52rem;letter-spacing:.1em;color:#4a7a8a;text-align:center}
+
+/* round bar */
+.rbar{display:flex;gap:18px;justify-content:center;align-items:center;
+  font-size:.62rem;color:#4a7a8a;letter-spacing:.1em}
+.rhi{color:#a0d8ef;font-weight:bold}
+
+/* cards */
+.pcards{width:100%;padding:10px 12px;background:#0d1117;border:1px solid #1a2a3a;border-radius:4px}
+.pcards-hdr{font-size:.55rem;letter-spacing:.12em;margin-bottom:7px}
+.pcards-hdr.p1{color:#F59E0B}.pcards-hdr.p2{color:#22D3EE}
+.prow{display:flex;gap:5px}
+.pip{width:34px;height:42px;border:1px solid #1a2a3a;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;font-weight:bold;user-select:none}
+.pip.avail{background:#0d1117;color:#7ab8cc}
+.pip.used{background:#050810;color:#1a2a3a;text-decoration:line-through}
+.pip.sel{background:#0a1a0a;color:#4ade80;border-color:#4ade80;box-shadow:0 0 8px #4ade8033}
+.pip.pick{cursor:pointer;border-color:#1a3a2a;color:#3a8a5a}
+.pip.pick:hover{border-color:#4ade80;color:#4ade80}
+.pip.rv0{background:rgba(120,60,0,.35);color:#F59E0B;border-color:#F59E0B}
+.pip.rv1{background:rgba(0,50,70,.35);color:#22D3EE;border-color:#22D3EE}
+
+/* action box */
+.abox{width:100%;padding:16px 14px;background:#0d1117;border:1px solid #1a2a3a;
+  border-radius:4px;display:flex;flex-direction:column;align-items:center;gap:12px;
+  min-height:100px;justify-content:center}
+.ainstr{font-size:.75rem;color:#7ab8cc;text-align:center;line-height:1.9}
+.away{color:#4a7a8a;font-size:.62rem}
+.btn-lock{padding:10px 28px;background:#0a1a0a;border:1px solid #4ade80;
+  color:#4ade80;font-size:.85rem;font-weight:bold;letter-spacing:.08em}
+.btn-lock:disabled{border-color:#1a2a3a;color:#2a4a2a;cursor:not-allowed;background:#07090d}
+.btn-dbl-y{padding:11px 22px;background:#0a1a1a;border:2px solid #22D3EE;
+  color:#22D3EE;font-size:.82rem;font-weight:bold}
+.btn-dbl-n{padding:11px 18px;background:#0d1117;border:1px solid #1a2a3a;
+  color:#4a7a8a;font-size:.82rem;font-weight:bold}
+.btn-go{padding:11px 30px;background:#4ade80;color:#000;border:none;
+  font-size:.88rem;font-weight:bold;letter-spacing:.08em}
+.btn-go:hover{background:#22c55e}
+.thinking{font-size:.7rem;color:#4a7a8a;letter-spacing:.08em}
+.pulse{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* reveal */
+.rvcards{display:flex;gap:18px;align-items:center;justify-content:center}
+.rvcard{text-align:center}
+.rvnum{font-size:2.6rem;font-weight:bold}
+.rvnum.p1{color:#F59E0B}.rvnum.p2{color:#22D3EE}
+.rvlbl{font-size:.55rem;letter-spacing:.1em;color:#4a7a8a;margin-top:2px}
+.rvresult{font-size:.95rem;font-weight:bold;letter-spacing:.1em;text-align:center}
+.rvresult.cooperation{color:#4ade80}
+.rvresult.defection{color:#f87171}
+.rvresult.tie{color:#4a7a8a}
+.rvdeltas{display:flex;gap:18px;justify-content:center;font-size:.78rem;font-weight:bold}
+.rvd0{color:#F59E0B}.rvd1{color:#22D3EE}
+.rvdbl{font-size:.6rem;color:#22D3EE;letter-spacing:.08em;text-align:center}
+
+/* speed */
+.spd{display:flex;gap:5px;align-items:center;font-size:.58rem;color:#4a7a8a}
+.spdbtn{padding:3px 7px;border:1px solid #1a2a3a;background:transparent;
+  color:#4a7a8a;font-size:.58rem}
+.spdbtn.on{background:#1a2a3a;color:#a0d8ef}
+
+/* log */
+.logbox{width:100%;max-height:160px;overflow-y:auto;background:#050810;
+  border:1px solid #0d1520;border-radius:3px;padding:7px 10px;
+  font-size:.58rem;line-height:1.9;color:#4a7a8a}
+.lset{color:#a0d8ef;font-weight:bold;margin-top:4px}
+.lcoop{color:#4ade80}.ldef{color:#f87171}.ltie{color:#4a7a8a}
+
+/* over */
+.ovtitle{font-size:1.5rem;font-weight:bold;letter-spacing:.2em;color:#a0d8ef;
+  text-align:center;margin-top:20px}
+.ovscores{display:flex;gap:40px;justify-content:center;margin:14px 0}
+.ovscore{text-align:center}
+.ovval{font-size:2.5rem;font-weight:bold}
+.ovval.p1{color:#F59E0B}.ovval.p2{color:#22D3EE}
+.ovlbl{font-size:.58rem;letter-spacing:.1em;color:#4a7a8a}
+.menubtn{background:none;border:none;color:#1a3a4a;font-size:.62rem;
+  letter-spacing:.08em;cursor:pointer}
+.menubtn:hover{color:#4a7a8a}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="screen-setup" class="screen">
+  <div>
+    <div class="title">SPLITS</div>
+    <div class="sub">A GAME OF COOPERATION AND BETRAYAL</div>
+  </div>
+
+  <div class="surface" style="font-size:.68rem;color:#7ab8cc;line-height:2">
+    <div style="color:#a0d8ef;font-weight:bold;font-size:.6rem;letter-spacing:.1em;margin-bottom:5px">RULES</div>
+    <div>Cards 1–5, each used once per set · Target sum: <strong style="color:#a0d8ef">7</strong></div>
+    <div><span style="color:#4ade80">Sum = 7</span> → cooperation: both score their card</div>
+    <div><span style="color:#f87171">Sum ≠ 7</span> → defection: lower card player loses their card value</div>
+    <div>Ties → nobody scores or loses</div>
+    <div>Call double before reveal → outcome ×2 · Both call → cancel</div>
+    <div>Round 5 → both remaining cards revealed before play</div>
+    <div>First to <span style="color:#4ade80">+30 wins</span> · First to <span style="color:#f87171">−20 loses</span> · Score persists across sets</div>
+  </div>
+
+  <div class="setup-label" style="color:#F59E0B">PLAYER 1</div>
+  <div class="type-group" id="p1g"></div>
+
+  <div class="setup-label" style="color:#22D3EE">PLAYER 2</div>
+  <div class="type-group" id="p2g"></div>
+
+  <div id="spd-setup" class="spd hidden">
+    AI SPEED:
+    <button class="spdbtn" onclick="setSpd('normal')">Normal</button>
+    <button class="spdbtn on" onclick="setSpd('fast')">Fast</button>
+    <button class="spdbtn" onclick="setSpd('instant')">Instant</button>
+  </div>
+
+  <button onclick="startGame()" style="padding:12px 36px;background:#0a1a0a;
+    border:1px solid #4ade80;color:#4ade80;font-size:.88rem;font-weight:bold;
+    letter-spacing:.12em;margin-top:6px;box-shadow:0 0 20px #4ade8022">
+    ▶ START
+  </button>
+  <div style="font-size:.5rem;color:#1a3a4a;text-align:center">
+    Win: +30 · Lose: −20 · Doubles reset each set · Score cumulative
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen hidden">
+  <div class="sbar">
+    <div><div class="sval p1" id="sv0">0</div><div class="slbl">P1</div></div>
+    <div style="text-align:center">
+      <div style="font-size:.5rem;color:#4ade80">+30 wins</div>
+      <div style="font-size:.5rem;color:#1a2a3a">·</div>
+      <div style="font-size:.5rem;color:#f87171">−20 loses</div>
+    </div>
+    <div><div class="sval p2" id="sv1">0</div><div class="slbl">P2</div></div>
+  </div>
+
+  <div class="rbar">
+    <span>SET <span class="rhi" id="setnum">1</span></span>
+    <span>ROUND <span class="rhi" id="rndnum">1</span>/5</span>
+    <span id="dblinfo" style="font-size:.55rem;color:#4a7a8a"></span>
+  </div>
+
+  <div id="cardsdiv" style="display:flex;flex-direction:column;gap:6px;width:100%"></div>
+  <div id="abox" class="abox"></div>
+  <div id="spdbar" class="spd hidden">
+    SPEED:
+    <button class="spdbtn" onclick="setSpd('normal')">Normal</button>
+    <button class="spdbtn on" onclick="setSpd('fast')">Fast</button>
+    <button class="spdbtn" onclick="setSpd('instant')">Instant</button>
+  </div>
+  <div id="logbox" class="logbox"></div>
+  <button class="menubtn" onclick="goMenu()">← menu</button>
+</div>
+
+<!-- OVER -->
+<div id="screen-over" class="screen hidden">
+  <div class="ovtitle">GAME OVER</div>
+  <div id="ovmsg" style="font-size:.72rem;color:#4a7a8a;text-align:center;margin-top:4px"></div>
+  <div class="ovscores">
+    <div class="ovscore"><div class="ovval p1" id="ov0">0</div><div class="ovlbl">P1</div></div>
+    <div class="ovscore"><div class="ovval p2" id="ov1">0</div><div class="ovlbl">P2</div></div>
+  </div>
+  <button onclick="goMenu()" style="padding:12px 32px;background:#0a1a0a;
+    border:1px solid #4ade80;color:#4ade80;font-size:.85rem;font-weight:bold;
+    letter-spacing:.1em">← MENU</button>
+</div>
+
+<script>
+'use strict';
+
+const WIN=30, LOSE=-20, TGT=7;
+const TYPES=[
+  {id:'human',                    label:'Human'},
+  {id:'random',                   label:'Random'},
+  {id:'cooperative',              label:'Cooperative'},
+  {id:'aggressive',               label:'Aggressive'},
+  {id:'tit-for-tat',              label:'Tit-for-Tat'},
+  {id:'claude-sonnet-4-20250514', label:'Sonnet 4'},
+  {id:'claude-haiku-4-5-20251001',label:'Haiku 4.5'},
+];
+
+// ── State ─────────────────────────────────────────────────────────────────
+let cfg={p:['human','human']};
+let scores=[0,0];
+let history=[];
+let set=null;
+let pending={cards:[null,null], doubles:[null,null]};
+let spd='fast';
+
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+const spdMs=()=>spd==='instant'?0:spd==='fast'?200:700;
+const isH=p=>cfg.p[p]==='human';
+const isA=p=>!isH(p);
+const bothA=()=>isA(0)&&isA(1);
+const rnd=arr=>arr[Math.floor(Math.random()*arr.length)];
+const pname=p=>`P${p+1}`;
+
+// ── Logic ─────────────────────────────────────────────────────────────────
+function newSet(){
+  return {round:1, hands:[[1,2,3,4,5],[1,2,3,4,5]], doublesUsed:[false,false], rounds:[]};
+}
+
+function resolveRound(c0,c1,dbl0,dbl1){
+  const cancelled=dbl0&&dbl1;
+  const doubled=!cancelled&&(dbl0||dbl1);
+  const sum=c0+c1;
+  let delta0=0,delta1=0,result;
+  if(sum===TGT){
+    result='cooperation';
+    delta0=doubled?c0*2:c0;
+    delta1=doubled?c1*2:c1;
+  } else if(c0===c1){
+    result='tie';
+  } else {
+    result='defection';
+    if(c0<c1) delta0=doubled?-c0*2:-c0;
+    else       delta1=doubled?-c1*2:-c1;
+  }
+  return {result,delta0,delta1,doubled,cancelled};
+}
+
+function checkWin(){
+  if(scores[0]>=WIN)  return {winner:0,reason:`P1 reached +${WIN}`};
+  if(scores[1]>=WIN)  return {winner:1,reason:`P2 reached +${WIN}`};
+  if(scores[0]<=LOSE) return {winner:1,reason:`P1 hit ${LOSE}`};
+  if(scores[1]<=LOSE) return {winner:0,reason:`P2 hit ${LOSE}`};
+  return null;
+}
+
+// ── AI Strategies ─────────────────────────────────────────────────────────
+function aiMove(pi){
+  const type=cfg.p[pi];
+  const hand=[...set.hands[pi]];
+  const oppUsed=[1,2,3,4,5].filter(c=>!set.hands[1-pi].includes(c));
+  const oppRem=[1,2,3,4,5].filter(c=>!oppUsed.includes(c));
+  const dblAvail=!set.doublesUsed[pi];
+
+  if(type==='random')      return randomAI(hand,dblAvail);
+  if(type==='cooperative') return coopAI(hand,oppRem,dblAvail);
+  if(type==='aggressive')  return aggrAI(hand,dblAvail);
+  if(type==='tit-for-tat') return tftAI(hand,oppRem,dblAvail,pi);
+  return randomAI(hand,dblAvail);
+}
+
+function randomAI(hand,dbl){
+  return {card:rnd(hand), double:dbl&&Math.random()<0.15};
+}
+
+function coopAI(hand,oppRem,dbl){
+  const sorted=[...hand].sort((a,b)=>b-a);
+  for(const c of sorted){
+    const need=TGT-c;
+    if(need!==c&&oppRem.includes(need))
+      return {card:c, double:dbl&&c>=4&&Math.random()<0.3};
+  }
+  return {card:Math.min(...hand), double:false};
+}
+
+function aggrAI(hand,dbl){
+  const card=Math.max(...hand);
+  return {card, double:dbl&&card>=4&&Math.random()<0.2};
+}
+
+function tftAI(hand,oppRem,dbl,pi){
+  if(set.rounds.length>0){
+    const last=set.rounds[set.rounds.length-1];
+    if(last.result==='defection'&&last.cards[pi]<last.cards[1-pi])
+      return {card:Math.max(...hand), double:false};
+  }
+  const sorted=[...hand].sort((a,b)=>a-b);
+  for(const c of sorted){
+    const need=TGT-c;
+    if(oppRem.includes(need))
+      return {card:c, double:dbl&&c>=4&&Math.random()<0.2};
+  }
+  return {card:Math.min(...hand), double:false};
+}
+
+async function claudeAI(pi){
+  const model=cfg.p[pi];
+  const hand=[...set.hands[pi]];
+  const oppUsed=[1,2,3,4,5].filter(c=>!set.hands[1-pi].includes(c));
+  const oppRem=[1,2,3,4,5].filter(c=>!oppUsed.includes(c));
+  const dbl=!set.doublesUsed[pi];
+
+  const fmtRound=(r,ri)=>{
+    const dn=r.cancelled?'[DBL CANCEL]':r.doubled?`[DOUBLED]`:'';
+    return `  R${ri+1}: P1=${r.cards[0]} P2=${r.cards[1]} → ${r.result.toUpperCase()} ${dn} (Δ${r.delta0>=0?'+':''}${r.delta0}, ${r.delta1>=0?'+':''}${r.delta1})`;
+  };
+
+  const histStr=history.map((s,si)=>
+    `Set ${si+1}:\n`+s.rounds.map(fmtRound).join('\n')
+  ).join('\n\n');
+
+  const curStr=set.rounds.map(fmtRound).join('\n');
+
+  const prompt=`You are playing SPLITS, a 2-player strategic card game.
+
+RULES:
+- Each player has cards 1,2,3,4,5 — each used exactly once per set (5 rounds)
+- Each round: both simultaneously play a card face-down, then optionally call "double" before reveal
+- If BOTH call double: they cancel — both doubles gone, face value result
+- If ONE calls double: outcome is ×2
+- Sum = ${TGT} → COOPERATION: both score their card (×2 if doubled)
+- Sum ≠ ${TGT} → DEFECTION: lower card player loses their card value (×2 if doubled)
+- Same cards → TIE: nobody scores or loses
+- Win: +${WIN} · Lose: ${LOSE} · Score persists across sets
+- Round 5: both remaining cards revealed before play
+
+STATE:
+You are ${pname(pi)} · Scores: P1=${scores[0]}, P2=${scores[1]}
+Set ${history.length+1}, Round ${set.round}
+Your remaining cards: [${hand.join(', ')}]
+Opponent used: [${oppUsed.join(', ')||'none'}] · Opponent remaining: [${oppRem.join(', ')}]
+Your double: ${dbl?'AVAILABLE':'USED'} · Opponent double: ${set.doublesUsed[1-pi]?'USED':'AVAILABLE'}
+
+CURRENT SET:
+${curStr||'(first round)'}
+
+ALL PREVIOUS SETS:
+${histStr||'(none)'}
+
+Respond ONLY with JSON: {"card":N,"double":true_or_false}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model, max_tokens:80,
+        system:'Strategic game AI for Splits. Output ONLY JSON {"card":N,"double":bool}.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const txt=data.content?.find(b=>b.type==='text')?.text||'';
+    const mv=JSON.parse(txt.replace(/```[\w\s]*/g,'').replace(/```/g,'').trim());
+    if(!hand.includes(mv.card)) mv.card=hand[0];
+    if(!dbl) mv.double=false;
+    return mv;
+  }catch(e){
+    console.warn('Claude fallback:',e);
+    return aiMove(pi);
+  }
+}
+
+async function getMove(pi){
+  if(cfg.p[pi].startsWith('claude-')) return await claudeAI(pi);
+  return aiMove(pi);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function show(id){
+  ['setup','game','over'].forEach(s=>
+    document.getElementById('screen-'+s).classList.toggle('hidden',s!==id));
+}
+
+function updScores(){
+  const e0=document.getElementById('sv0');
+  const e1=document.getElementById('sv1');
+  e0.textContent=scores[0]; e1.textContent=scores[1];
+  e0.className='sval p1'+(scores[0]<=-10?' warn':'');
+  e1.className='sval p2'+(scores[1]<=-10?' warn':'');
+  if(set){
+    document.getElementById('setnum').textContent=history.length+1;
+    document.getElementById('rndnum').textContent=set.round;
+    const d0=set.doublesUsed[0]?'✕':'◆';
+    const d1=set.doublesUsed[1]?'✕':'◆';
+    document.getElementById('dblinfo').textContent=`DBL P1:${d0} P2:${d1}`;
+  }
+}
+
+function renderCards(selIdx=null, rv=null){
+  const el=document.getElementById('cardsdiv');
+  el.innerHTML='';
+  if(!set)return;
+  [0,1].forEach(p=>{
+    const wrap=document.createElement('div');
+    wrap.className='pcards';
+    const hdr=document.createElement('div');
+    hdr.className='pcards-hdr '+(p===0?'p1':'p2');
+    hdr.textContent=`${pname(p)}${isA(p)?' ['+cfg.p[p]+']':''}`;
+    wrap.appendChild(hdr);
+    const row=document.createElement('div');
+    row.className='prow';
+    [1,2,3,4,5].forEach(c=>{
+      const pip=document.createElement('div');
+      const inHand=set.hands[p].includes(c);
+      if(rv&&rv[p]===c)      pip.className=`pip rv${p}`;
+      else if(!inHand)        pip.className='pip used';
+      else if(p===selIdx&&pending.cards[p]===c) pip.className='pip sel';
+      else if(p===selIdx&&isH(p)) {
+        pip.className='pip pick';
+        pip.onclick=()=>pickCard(p,c);
+      } else pip.className='pip avail';
+      pip.textContent=inHand||rv?c:'·';
+      row.appendChild(pip);
+    });
+    wrap.appendChild(row);
+    el.appendChild(wrap);
+  });
+}
+
+function setAbox(html){ document.getElementById('abox').innerHTML=html; }
+
+function appendLog(txt,cls='ltie'){
+  const el=document.getElementById('logbox');
+  const d=document.createElement('div');
+  d.className=cls; d.textContent=txt;
+  el.appendChild(d);
+  el.scrollTop=el.scrollHeight;
+}
+
+// ── Game Flow ─────────────────────────────────────────────────────────────
+function startGame(){
+  scores=[0,0]; history=[]; set=newSet();
+  document.getElementById('logbox').innerHTML='';
+  document.getElementById('spdbar').classList.toggle('hidden',!bothA());
+  show('game'); updScores();
+  startRound();
+}
+
+async function startRound(){
+  pending={cards:[null,null],doubles:[null,null]};
+  updScores();
+
+  // Round 5: reveal both remaining cards
+  if(set.round===5){
+    const c0=set.hands[0][0], c1=set.hands[1][0];
+    pending.cards=[c0,c1];
+    renderCards(null,null);
+    setAbox(`<div class="ainstr">
+      <div class="big" style="margin-bottom:10px">ROUND 5 — FINAL CARD</div>
+      <div>${pname(0)}'s last card: <strong style="color:#F59E0B;font-size:1.3rem">${c0}</strong></div>
+      <div style="margin-top:4px">${pname(1)}'s last card: <strong style="color:#22D3EE;font-size:1.3rem">${c1}</strong></div>
+      <div class="away" style="margin-top:8px">Both cards are known. Doubles still apply.</div>
+    </div>`);
+
+    if(bothA()){
+      await delay(spdMs()*2||600);
+      // AI decide doubles with full info
+      const [mv0,mv1]=await Promise.all([getMove(0),getMove(1)]);
+      pending.doubles[0]=mv0.double&&!set.doublesUsed[0];
+      pending.doubles[1]=mv1.double&&!set.doublesUsed[1];
+      // Remove from hands now
+      set.hands[0]=[]; set.hands[1]=[];
+      await doReveal();
+    } else {
+      document.getElementById('abox').innerHTML+=
+        `<button class="btn-go" style="margin-top:8px" onclick="r5DoublePhase()">DOUBLE PHASE →</button>`;
+    }
+    return;
+  }
+
+  // Normal rounds
+  if(bothA()) await aiRound();
+  else await humanRound();
+}
+
+async function r5DoublePhase(){
+  // Remove from hands before double phase for human players
+  set.hands[0]=[]; set.hands[1]=[];
+  await doDoublePhase();
+}
+
+async function humanRound(){
+  // P1 selects
+  if(isA(0)){
+    renderCards(0);
+    setAbox(`<div class="thinking pulse">⟳ ${pname(0)} [AI] selecting…</div>`);
+    await delay(spdMs());
+    const mv=await getMove(0);
+    pending.cards[0]=mv.card;
+    pending.doubles[0]=mv.double&&!set.doublesUsed[0];
+    set.hands[0]=set.hands[0].filter(c=>c!==mv.card);
+    await p2Select();
+  } else {
+    renderCards(0);
+    setAbox(`<div class="ainstr">
+      <span style="color:#F59E0B;font-weight:bold">P1</span> — choose your card<br/>
+      <span class="away">P2 look away</span>
+    </div>
+    <button class="btn-lock" id="lb0" disabled onclick="lockCard(0)">LOCK IN ▶</button>`);
+  }
+}
+
+function pickCard(p,c){
+  pending.cards[p]=c;
+  renderCards(p);
+  const lb=document.getElementById(`lb${p}`);
+  if(lb) lb.disabled=false;
+}
+
+async function lockCard(p){
+  if(!pending.cards[p]) return;
+  set.hands[p]=set.hands[p].filter(c=>c!==pending.cards[p]);
+  if(p===0) await p2Select();
+  else await doDoublePhase();
+}
+
+async function p2Select(){
+  if(isA(1)){
+    renderCards(1);
+    setAbox(`<div class="thinking pulse">⟳ ${pname(1)} [AI] selecting…</div>`);
+    await delay(spdMs());
+    const mv=await getMove(1);
+    pending.cards[1]=mv.card;
+    pending.doubles[1]=mv.double&&!set.doublesUsed[1];
+    set.hands[1]=set.hands[1].filter(c=>c!==mv.card);
+    await doDoublePhase();
+  } else {
+    renderCards(1);
+    setAbox(`<div class="ainstr">
+      <span style="color:#22D3EE;font-weight:bold">P2</span> — choose your card<br/>
+      <span class="away">P1 look away</span>
+    </div>
+    <button class="btn-lock" id="lb1" disabled onclick="lockCard(1)">LOCK IN ▶</button>`);
+  }
+}
+
+async function aiRound(){
+  renderCards(null);
+  setAbox(`<div class="thinking pulse">⟳ Both AIs selecting…</div>`);
+  await delay(spdMs());
+  const [mv0,mv1]=await Promise.all([getMove(0),getMove(1)]);
+  pending.cards=[mv0.card,mv1.card];
+  pending.doubles=[
+    mv0.double&&!set.doublesUsed[0],
+    mv1.double&&!set.doublesUsed[1]
+  ];
+  set.hands[0]=set.hands[0].filter(c=>c!==mv0.card);
+  set.hands[1]=set.hands[1].filter(c=>c!==mv1.card);
+  await doReveal();
+}
+
+async function doDoublePhase(){
+  if(bothA()){ await doReveal(); return; }
+  // Human double decisions
+  if(isH(0)) await humanDouble(0);
+  else if(isH(1)) await humanDouble(1);
+  else await doReveal();
+}
+
+async function humanDouble(p){
+  const dAvail=!set.doublesUsed[p];
+  const col=p===0?'#F59E0B':'#22D3EE';
+  const other=p===0?'P2':'P1';
+  renderCards(null);
+  setAbox(`<div class="ainstr">
+    <span style="color:${col};font-weight:bold">${pname(p)}</span> — call double?<br/>
+    <span class="away">${other} look away</span>
+    ${!dAvail?'<br/><span style="color:#f87171;font-size:.6rem">double already used</span>':''}
+  </div>
+  <div style="display:flex;gap:10px">
+    ${dAvail?`<button class="btn-dbl-y" onclick="callDbl(${p},true)">◆ DOUBLE</button>`:''}
+    <button class="btn-dbl-n" onclick="callDbl(${p},false)">PASS</button>
+  </div>`);
+}
+
+async function callDbl(p, val){
+  pending.doubles[p]=val&&!set.doublesUsed[p];
+  setAbox(`<div class="thinking" style="color:#4a7a8a">${pname(p)} decided.</div>`);
+  await delay(250);
+  if(p===0&&isH(1)) await humanDouble(1);
+  else await doReveal();
+}
+
+async function doReveal(){
+  if(pending.doubles[0]===null) pending.doubles[0]=false;
+  if(pending.doubles[1]===null) pending.doubles[1]=false;
+
+  const [c0,c1]=pending.cards;
+  const [dbl0,dbl1]=pending.doubles;
+  const res=resolveRound(c0,c1,dbl0,dbl1);
+
+  // Update double usage
+  if(dbl0&&!dbl1) set.doublesUsed[0]=true;
+  if(dbl1&&!dbl0) set.doublesUsed[1]=true;
+  if(dbl0&&dbl1){set.doublesUsed[0]=true;set.doublesUsed[1]=true;}
+
+  scores[0]+=res.delta0; scores[1]+=res.delta1;
+  set.rounds.push({cards:[c0,c1],delta0:res.delta0,delta1:res.delta1,
+    result:res.result,doubled:res.doubled,cancelled:res.cancelled,
+    doubles:[dbl0,dbl1]});
+
+  // Log
+  const dn=res.cancelled?'[DBL✗]':res.doubled?`[DBL×${dbl0?'P1':'P2'}]`:'';
+  const lc=res.result==='cooperation'?'lcoop':res.result==='defection'?'ldef':'ltie';
+  appendLog(
+    `R${set.round} P1:${c0} P2:${c1} → ${res.result.toUpperCase()} ${dn} `+
+    `(${res.delta0>=0?'+':''}${res.delta0}, ${res.delta1>=0?'+':''}${res.delta1})`,lc);
+
+  renderCards(null,[c0,c1]);
+  updScores();
+
+  const dblNote=res.cancelled
+    ?'<div class="rvdbl">◆ DOUBLES CANCELLED</div>'
+    :res.doubled
+    ?`<div class="rvdbl">◆ DOUBLED by ${dbl0?'P1':'P2'} — outcome ×2</div>`
+    :'';
+
+  setAbox(`
+    <div class="rvcards">
+      <div class="rvcard"><div class="rvnum p1">${c0}</div><div class="rvlbl">P1</div></div>
+      <div style="color:#1a3a4a;font-size:1.1rem">+ = ${c0+c1}</div>
+      <div class="rvcard"><div class="rvnum p2">${c1}</div><div class="rvlbl">P2</div></div>
+    </div>
+    ${dblNote}
+    <div class="rvresult ${res.result}">
+      ${res.result==='cooperation'?'✓ COOPERATION':res.result==='defection'?'✗ DEFECTION':'— TIE'}
+    </div>
+    <div class="rvdeltas">
+      <span class="rvd0">P1 ${res.delta0>=0?'+':''}${res.delta0}</span>
+      <span class="rvd1">P2 ${res.delta1>=0?'+':''}${res.delta1}</span>
+    </div>
+  `);
+
+  const win=checkWin();
+  if(win){ await delay(spdMs()*2||800); gameOver(win); return; }
+
+  if(bothA()){
+    await delay(spdMs()*1.5||500);
+    nextRound();
+  } else {
+    document.getElementById('abox').innerHTML+=
+      `<button class="btn-go" style="margin-top:8px" onclick="nextRound()">NEXT ROUND →</button>`;
+  }
+}
+
+function nextRound(){
+  set.round++;
+  if(set.round>5) endSet();
+  else startRound();
+}
+
+function endSet(){
+  history.push({rounds:[...set.rounds]});
+  appendLog(`── Set ${history.length} done · P1=${scores[0]} P2=${scores[1]} ──`,'lset');
+  set=newSet();
+  updScores();
+  const win=checkWin();
+  if(win){gameOver(win);return;}
+  if(bothA()){startRound();return;}
+  renderCards(null);
+  setAbox(`<div class="ainstr">
+    <div class="big" style="margin-bottom:8px">SET COMPLETE</div>
+    <div>P1: ${scores[0]} · P2: ${scores[1]}</div>
+    <div class="away" style="margin-top:6px">Cards and doubles reset for next set</div>
+  </div>
+  <button class="btn-go" onclick="startRound()">NEXT SET →</button>`);
+}
+
+function gameOver(win){
+  document.getElementById('ov0').textContent=scores[0];
+  document.getElementById('ov1').textContent=scores[1];
+  document.getElementById('ov0').style.textShadow=win.winner===0?`0 0 20px #F59E0B`:'none';
+  document.getElementById('ov1').style.textShadow=win.winner===1?`0 0 20px #22D3EE`:'none';
+  document.getElementById('ovmsg').textContent=`${win.reason} — ${pname(win.winner)} wins`;
+  show('over');
+}
+
+function goMenu(){ show('setup'); }
+
+// ── Setup ─────────────────────────────────────────────────────────────────
+function setSpd(s){
+  spd=s;
+  document.querySelectorAll('.spdbtn').forEach(b=>
+    b.className='spdbtn'+(b.textContent.toLowerCase()===s?' on':''));
+}
+
+function buildSetup(){
+  [0,1].forEach(pi=>{
+    const grp=document.getElementById(`p${pi+1}g`);
+    grp.innerHTML='';
+    TYPES.forEach(t=>{
+      const b=document.createElement('button');
+      const isActive=cfg.p[pi]===t.id;
+      b.className='type-btn'+(isActive?` a${pi}`:'');
+      b.textContent=t.label;
+      b.onclick=()=>{
+        cfg.p[pi]=t.id;
+        buildSetup();
+        document.getElementById('spd-setup').classList.toggle('hidden',!bothA());
+      };
+      grp.appendChild(b);
+    });
+  });
+}
+
+buildSetup();
+</script>
+</body>
+</html>
